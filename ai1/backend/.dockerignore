@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Version control
+.git/
+.gitignore
+
+# Environment files & Secrets
+.env
+.env.*
+*serviceAccountKey*.json
+**/*serviceAccountKey*.json
+*.pem
+*.key
+
+# Logs
+logs/
+*.log
+
+# Editor & OS files
+.DS_Store
+.idea/
+.vscode/
+

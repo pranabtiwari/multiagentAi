@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Version control & Config
+.git/
+.gitignore
+.dockerignore
+
+# Environment files & Secrets
+.env
+.env.*
+**/.env
+**/.env.*
+*serviceAccountKey*.json
+**/*serviceAccountKey*.json
+*.pem
+*.key
+
+# Build outputs
+dist/
+**/dist/
+build/
+**/build/
+out/
+.next/
+.output/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor & OS files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Testing & Coverage
+coverage/
+.nyc_output/
+
+# Markdown & documentation
+README.md
+docs/
+
