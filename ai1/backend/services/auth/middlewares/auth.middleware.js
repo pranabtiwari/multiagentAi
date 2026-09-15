@@ -2,7 +2,7 @@ import redisClient from "../../../shared/redis.js";
 
 export  const protect = async(req, res, next) => {
  try{
-    const sessionId = req.cookies?.session;;
+    const sessionId = req.cookies?.session;
     if (!sessionId) {
       return res.status(401).json({ error: "Unauthorized" });
     }
