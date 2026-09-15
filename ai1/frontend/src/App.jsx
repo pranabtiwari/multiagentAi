@@ -1,5 +1,8 @@
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../utils/firebase.js";
+import instance from "../utils/axios.js";
 import { getCurrentUser } from "./feature/getCurrentUser";
 import { setUserData } from "./feature/user/userSlice";
 import AppRoutes from "./app.routes";
@@ -8,19 +11,36 @@ const App = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const fetchCurrentUser = async () => {
-      try {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        try {
+          // Sync with backend and store user profile in Redux
+          const idToken = await currentUser.getIdToken();
+          const response = await instance.post("/auth/login", {
+            idToken,
+            name: currentUser.displayName,
+          });
+          if (response.data?.user) {
+            dispatch(setUserData(response.data.user));
+          }
+        } catch (error) {
+          console.error("Session sync failed:", error);
+          // Fallback to /me endpoint
+          const user = await getCurrentUser();
+          if (user) {
+            dispatch(setUserData(user));
+          }
+        }
+      } else {
+        // Fallback check via cookie /me
         const user = await getCurrentUser();
         if (user) {
           dispatch(setUserData(user));
         }
-        console.log("Current user:", user);
-      } catch (error) {
-        console.error("Error fetching current user:", error);
       }
-    };
+    });
 
-    fetchCurrentUser();
+    return () => unsubscribe();
   }, [dispatch]);
 
   return (

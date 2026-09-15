@@ -9,8 +9,11 @@ import {
 import { auth, googleProvider } from "../../utils/firebase.js";
 import instance from "../../utils/axios.js";
 import { useNavigate } from "react-router";
+import { useDispatch } from "react-redux";
+import { setUserData } from "../feature/user/userSlice.js";
 
 const Auth = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [isSignUp, setIsSignUp] = useState(false);
@@ -71,6 +74,9 @@ const Auth = () => {
         name: formData.name || result.user.displayName,
       });
       console.log("Server response:", response.data);
+      if (response.data?.user) {
+        dispatch(setUserData(response.data.user));
+      }
       navigate("/");
     } catch (err) {
       console.error("Email/Password Auth Error:", err);
@@ -89,6 +95,9 @@ const Auth = () => {
       console.log("Logged in user:", result.user);
       const response = await instance.post("/auth/login", { idToken });
       console.log("Server response:", response.data);
+      if (response.data?.user) {
+        dispatch(setUserData(response.data.user));
+      }
       navigate("/");
     } catch (err) {
       console.error("Google Sign-In Error:", err);
