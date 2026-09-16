@@ -1,5 +1,4 @@
-// src/feature/getCurrentUser.js
-import instance from "../../utils/axios";
+import instance from "../../utils/axios.js";
 
 export const getCurrentUser = async () => {
   try {

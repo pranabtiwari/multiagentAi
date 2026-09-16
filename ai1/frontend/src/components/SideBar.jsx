@@ -16,8 +16,17 @@ import { signOut } from "firebase/auth";
 import { auth } from "../../utils/firebase.js";
 import instance from "../../utils/axios.js";
 import { clearUserData } from "../redux/user/userSlice.js";
-import { createConversation, getConversations } from "../feature/Converations.js";
-import { setConverstions } from "../redux/coverstaionSlice.js";
+import {
+  createConversation,
+  getConversations,
+  deleteConversation,
+} from "../feature/Converations.js";
+import {
+  setConverstions,
+  addConversation,
+  setActiveConversationId,
+  removeConversation,
+} from "../redux/coverstaionSlice.js";
 
 const SideBar = ({
   conversations = [],
@@ -27,25 +36,76 @@ const SideBar = ({
   onDeleteConversation = () => {},
 }) => {
   const [isOpen, setIsOpen] = useState(true);
-  const user = useSelector((state) => state.user.userData);
+  const user = useSelector((state) => state.user?.userData);
+  const reduxConversations = useSelector(
+    (state) => state.converstions?.conversations || []
+  );
+  const reduxActiveId = useSelector(
+    (state) => state.converstions?.activeConversationId || null
+  );
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const chatList =
+    conversations.length > 0 ? conversations : reduxConversations;
+  const currentActiveId = activeConversationId || reduxActiveId;
+
+  // Load conversations on mount or when user logs in
   useEffect(() => {
-    const data = async() =>{
-      const result = await getConversations()
-      dispatch(setConverstions)
+    const fetchChatList = async () => {
+      if (!user) return;
+      try {
+        const result = await getConversations();
+        dispatch(setConverstions(result));
+      } catch (err) {
+        console.error("Failed to load conversations:", err);
+      }
+    };
+
+    fetchChatList();
+  }, [user, dispatch]);
+
+  const handleNewChat = async () => {
+    try {
+      const newChat = await createConversation("New Chat");
+      if (newChat) {
+        dispatch(addConversation(newChat));
+        if (onNewChat && typeof onNewChat === "function") {
+          onNewChat(newChat);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to create new chat:", err);
     }
+  };
 
-    data()
-  },[])
+  const handleSelectChat = (chatId) => {
+    dispatch(setActiveConversationId(chatId));
+    if (onSelectConversation && typeof onSelectConversation === "function") {
+      onSelectConversation(chatId);
+    }
+  };
 
-  
+  const handleDeleteChat = async (e, chatId) => {
+    e.stopPropagation();
+    try {
+      await deleteConversation(chatId);
+      dispatch(removeConversation(chatId));
+      if (onDeleteConversation && typeof onDeleteConversation === "function") {
+        onDeleteConversation(chatId);
+      }
+    } catch (err) {
+      console.error("Failed to delete chat:", err);
+    }
+  };
+
   const handleSignOut = async () => {
     try {
       await signOut(auth);
       await instance.post("/auth/logout");
       dispatch(clearUserData());
+      dispatch(setConverstions([]));
       navigate("/login");
     } catch (error) {
       console.error("Logout Error:", error);
@@ -72,7 +132,7 @@ const SideBar = ({
         <div className="flex items-center justify-between h-16 px-3.5 border-b border-neutral-800/60">
           {isOpen ? (
             <Link to="/" className="flex items-center gap-2.5 group">
-              <div className="lg:hidden w-8 h-8 rounded-xl  from-indigo-500 to-purple-600 flex items-center justify-center shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform">
+              <div className="lg:hidden w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform">
                 <Sparkles className="w-4 h-4 text-white" />
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-neutral-100 to-neutral-300 bg-clip-text text-transparent">
@@ -82,7 +142,7 @@ const SideBar = ({
           ) : (
             <div className="relative w-8 h-8 group">
               {/* Sparkles icon */}
-              <div className="w-8 h-8 rounded-xl  from-indigo-500 to-purple-600 flex items-center justify-center shadow-md shadow-indigo-500/20 group-hover:opacity-0 transition-opacity">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center shadow-md shadow-indigo-500/20 group-hover:opacity-0 transition-opacity">
                 <Sparkles className="w-4 h-4 text-white" />
               </div>
 
@@ -112,12 +172,11 @@ const SideBar = ({
         {/* New Chat Button */}
         <div className="p-3">
           <button
-            onClick={onNewChat}
+            onClick={handleNewChat}
             className={`w-full flex items-center justify-center gap-2.5 py-2.5 px-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-medium text-sm rounded-xl shadow-lg shadow-indigo-500/20 transition active:scale-[0.98] cursor-pointer ${
               !isOpen && "px-0"
             }`}
             title="New Chat"
-            onClick={createConversation}
           >
             <Plus className="w-4 h-4 shrink-0" />
             {isOpen && <span>New Chat</span>}
@@ -132,13 +191,13 @@ const SideBar = ({
             </div>
           )}
 
-          {conversations.length > 0
-            ? conversations.map((chat) => {
-                const isActive = activeConversationId === chat._id;
+          {chatList.length > 0
+            ? chatList.map((chat) => {
+                const isActive = currentActiveId === chat._id;
                 return (
                   <div
                     key={chat._id}
-                    onClick={() => onSelectConversation(chat._id)}
+                    onClick={() => handleSelectChat(chat._id)}
                     className={`group relative flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm transition cursor-pointer ${
                       isActive
                         ? "bg-neutral-800/90 text-white font-medium shadow-xs"
@@ -153,10 +212,7 @@ const SideBar = ({
                           {chat.title || "New Chat"}
                         </span>
                         <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onDeleteConversation(chat._id);
-                          }}
+                          onClick={(e) => handleDeleteChat(e, chat._id)}
                           className="opacity-0 group-hover:opacity-100 p-1 text-neutral-500 hover:text-red-400 rounded-md transition"
                           title="Delete chat"
                         >
@@ -206,7 +262,7 @@ const SideBar = ({
                     className="w-8 h-8 rounded-full object-cover shrink-0 ring-1 ring-neutral-700"
                   />
                 ) : (
-                  <div className="w-8 h-8 rounded-full  from-indigo-600 to-purple-600 text-white text-xs font-bold flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 text-white text-xs font-bold flex items-center justify-center shrink-0">
                     {(user.name || user.email || "U")[0].toUpperCase()}
                   </div>
                 )}

@@ -3,9 +3,9 @@ import { useDispatch } from "react-redux";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../utils/firebase.js";
 import instance from "../utils/axios.js";
-import { getCurrentUser } from "./feature/getCurrentUser";
+import { getCurrentUser } from "./feature/getCurrentUser.js";
 import { setUserData } from "./redux/user/userSlice.js";
-import AppRoutes from "./app.routes";
+import AppRoutes from "./app.routes.jsx";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -44,7 +44,7 @@ const App = () => {
   }, [dispatch]);
 
   return (
-    <div>
+    <div className="min-h-screen bg-neutral-950 text-neutral-100">
       <AppRoutes />
     </div>
   );

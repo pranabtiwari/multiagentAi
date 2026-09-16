@@ -1,11 +1,11 @@
 import "dotenv/config";
 import { ChatGroq } from "@langchain/groq";
 
-const apiKey = process.env.GROQ_API_KEY 
+const apiKey = process.env.GROQ_API_KEY || process.env.GROK_API_KEY;
 
 const groq = new ChatGroq({
   apiKey,
-  model: process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
+  model: process.env.GROQ_MODEL ,
   temperature: 0.2,
   maxRetries: 2,
 });

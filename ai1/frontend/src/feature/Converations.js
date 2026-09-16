@@ -3,6 +3,7 @@ import instance from "../../utils/axios.js";
 // 1. Create a new conversation
 export const createConversation = async (title = "New Chat") => {
   try {
+    // If title is an object (e.g., SyntheticEvent from onClick) or not a valid non-empty string, default to "New Chat"
     const safeTitle =
       typeof title === "string" && title.trim().length > 0
         ? title.trim()
