@@ -10,7 +10,7 @@ import { auth, googleProvider } from "../../utils/firebase.js";
 import instance from "../../utils/axios.js";
 import { useNavigate } from "react-router";
 import { useDispatch } from "react-redux";
-import { setUserData } from "../feature/user/userSlice.js";
+import { setUserData } from "../redux/user/userSlice.js";
 
 const Auth = () => {
   const dispatch = useDispatch();

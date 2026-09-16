@@ -4,7 +4,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../utils/firebase.js";
 import instance from "../utils/axios.js";
 import { getCurrentUser } from "./feature/getCurrentUser";
-import { setUserData } from "./feature/user/userSlice";
+import { setUserData } from "./redux/user/userSlice.js";
 import AppRoutes from "./app.routes";
 
 const App = () => {
