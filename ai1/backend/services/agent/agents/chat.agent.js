@@ -9,7 +9,7 @@ const CHAT_SYSTEM_PROMPT = `You are freeAi, an intelligent, helpful, and friendl
 export const chatAgent = async (state) => {
   try {
     const llm = await getModel("chat");
-    const userPrompt = state.prompt || "";
+    const userPrompt = state.prompt;
 
     const response = await llm.invoke([
       new SystemMessage(CHAT_SYSTEM_PROMPT),

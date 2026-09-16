@@ -72,7 +72,7 @@ const SideBar = ({
         <div className="flex items-center justify-between h-16 px-3.5 border-b border-neutral-800/60">
           {isOpen ? (
             <Link to="/" className="flex items-center gap-2.5 group">
-              <div className="lg:hidden w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform">
+              <div className="lg:hidden w-8 h-8 rounded-xl  from-indigo-500 to-purple-600 flex items-center justify-center shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform">
                 <Sparkles className="w-4 h-4 text-white" />
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-neutral-100 to-neutral-300 bg-clip-text text-transparent">
@@ -82,7 +82,7 @@ const SideBar = ({
           ) : (
             <div className="relative w-8 h-8 group">
               {/* Sparkles icon */}
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center shadow-md shadow-indigo-500/20 group-hover:opacity-0 transition-opacity">
+              <div className="w-8 h-8 rounded-xl  from-indigo-500 to-purple-600 flex items-center justify-center shadow-md shadow-indigo-500/20 group-hover:opacity-0 transition-opacity">
                 <Sparkles className="w-4 h-4 text-white" />
               </div>
 
@@ -206,7 +206,7 @@ const SideBar = ({
                     className="w-8 h-8 rounded-full object-cover shrink-0 ring-1 ring-neutral-700"
                   />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 text-white text-xs font-bold flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 rounded-full  from-indigo-600 to-purple-600 text-white text-xs font-bold flex items-center justify-center shrink-0">
                     {(user.name || user.email || "U")[0].toUpperCase()}
                   </div>
                 )}
