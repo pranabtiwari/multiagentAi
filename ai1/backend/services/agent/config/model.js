@@ -1,13 +1,21 @@
 import "dotenv/config";
 import { ChatGroq } from "@langchain/groq";
+import { ChatGoogle } from "@langchain/google";
 
-const apiKey = process.env.GROQ_API_KEY || process.env.GROK_API_KEY;
+const grokApiKey = process.env.GROQ_API_KEY;
+const geminiApiKey = process.env.GEMINI_KEY || process.env.GEMINI_API_KEY;
 
 const groq = new ChatGroq({
-  apiKey,
-  model: process.env.GROQ_MODEL ,
+  apiKey: grokApiKey,
+  model: process.env.GROQ_MODEL || "llama3-8b-8192",
   temperature: 0.2,
   maxRetries: 2,
+});
+
+const gemini = new ChatGoogle({
+  apiKey: geminiApiKey,
+  model: process.env.GEMINI_MODEL || "gemini-1.5-flash",
+  temperature: 0.2,
 });
 
 export const getModel = async (agent) => {
@@ -15,7 +23,7 @@ export const getModel = async (agent) => {
     case "chat":
       return groq;
     case "search":
-      return groq;
+      return gemini;
     case "coding":
       return groq;
     case "router":

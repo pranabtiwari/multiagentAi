@@ -3,5 +3,6 @@ export const agentState = Annotation.Root({
     prompt: Annotation(),
     aiResponse: Annotation(),
     stateAgentKey: Annotation(),
-    conversationId: Annotation()
+    conversationId: Annotation(),
+    searchResult: Annotation()
 })

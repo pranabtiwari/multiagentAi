@@ -35,7 +35,7 @@ graphWorkFlow.addConditionalEdges("router", (state) => {
   }
 });
 
-graphWorkFlow.addEdge("search", "chat");
+graphWorkFlow.addEdge("search", END);
 graphWorkFlow.addEdge("chat", END);
 graphWorkFlow.addEdge("pdf", END);
 graphWorkFlow.addEdge("coding", END);

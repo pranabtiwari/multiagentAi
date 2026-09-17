@@ -41,6 +41,7 @@ export const agent = async (req, res) => {
     return res.status(200).json({
       message: aiResponse,
       agentUsed: result.stateAgentKey,
+      searchResults: result.searchResults || [],
     });
   } catch (error) {
     console.error("Agent Controller Error:", error?.response?.data || error.message);
