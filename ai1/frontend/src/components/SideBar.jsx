@@ -38,10 +38,10 @@ const SideBar = ({
   const [isOpen, setIsOpen] = useState(true);
   const user = useSelector((state) => state.user?.userData);
   const reduxConversations = useSelector(
-    (state) => state.converstions?.conversations || []
+    (state) => state.converstions?.conversations || [],
   );
   const reduxActiveId = useSelector(
-    (state) => state.converstions?.activeConversationId || null
+    (state) => state.converstions?.activeConversationId || null,
   );
 
   const dispatch = useDispatch();

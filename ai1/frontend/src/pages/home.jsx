@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import SideBar from "../components/SideBar.jsx";
 import {
   Send,
@@ -27,10 +29,10 @@ const Home = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user?.userData);
   const activeConversationId = useSelector(
-    (state) => state.converstions?.activeConversationId
+    (state) => state.converstions?.activeConversationId,
   );
   const conversations = useSelector(
-    (state) => state.converstions?.conversations || []
+    (state) => state.converstions?.conversations || [],
   );
 
   const [messages, setMessages] = useState([]);
@@ -81,7 +83,7 @@ const Home = () => {
       // If no active conversation, create one first
       if (!currentConvId) {
         const newChat = await createConversation(
-          promptToSend.slice(0, 30) + (promptToSend.length > 30 ? "..." : "")
+          promptToSend.slice(0, 30) + (promptToSend.length > 30 ? "..." : ""),
         );
         if (newChat && newChat._id) {
           dispatch(addConversation(newChat));
@@ -118,7 +120,8 @@ const Home = () => {
       const errorMsg = {
         _id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: "Sorry, I encountered an error while processing your request. Please ensure all backend services are running.",
+        content:
+          "Sorry, I encountered an error while processing your request. Please ensure all backend services are running.",
         createdAt: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, errorMsg]);
@@ -134,33 +137,6 @@ const Home = () => {
     }
   };
 
-  const quickPrompts = [
-    {
-      title: "Write a React Hook",
-      desc: "Custom hook for local storage sync",
-      icon: Code,
-      prompt: "Write a custom React hook in TypeScript for synchronizing state with localStorage.",
-    },
-    {
-      title: "Explain Multi-Agent Workflows",
-      desc: "How LangGraph router patterns work",
-      icon: Bot,
-      prompt: "Explain how multi-agent routing works in LangGraph with supervisor and worker nodes.",
-    },
-    {
-      title: "Search Latest Research",
-      desc: "Summary of modern LLM reasoning",
-      icon: Search,
-      prompt: "What are the latest techniques in test-time compute and LLM reasoning models?",
-    },
-    {
-      title: "Analyze & Debug Code",
-      desc: "Find memory leaks or bottlenecks",
-      icon: FileText,
-      prompt: "How do I identify and fix memory leaks in a Node.js Express application?",
-    },
-  ];
-
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-neutral-950 text-neutral-100 selection:bg-indigo-500 selection:text-white">
       {/* Collapsible Left Sidebar */}
@@ -168,48 +144,22 @@ const Home = () => {
 
       {/* Main Chat Workspace */}
       <main className="flex-1 flex flex-col h-full min-w-0 bg-neutral-900/40 relative">
-
         {/* Message Feed / Welcome Screen */}
         <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6 space-y-6 scrollbar-thin scrollbar-thumb-neutral-800">
           {messages.length === 0 ? (
             <div className="max-w-3xl mx-auto h-full flex flex-col justify-center items-center text-center py-12">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center shadow-xl shadow-indigo-500/25 mb-6">
+              <div className="w-16 h-16 rounded-2xl  from-indigo-500 to-purple-600 flex items-center justify-center shadow-xl shadow-indigo-500/25 mb-6">
                 <Sparkles className="w-8 h-8 text-white" />
               </div>
-              <h2 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-neutral-100 to-neutral-400 bg-clip-text text-transparent">
+              <h2 className="text-3xl font-bold tracking-tight  from-neutral-100 to-neutral-400 bg-clip-text text-transparent">
                 What can I help you build today?
               </h2>
               <p className="text-neutral-400 text-sm mt-2 max-w-md">
-                Chat with specialized agents for Coding, Web Search, PDF Analysis, and General Q&A.
+                Chat with specialized agents for Coding, Web Search, PDF
+                Analysis, and General Q&A.
               </p>
 
               {/* Quick Prompt Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full mt-10 text-left">
-                {quickPrompts.map((item, idx) => {
-                  const Icon = item.icon;
-                  return (
-                    <button
-                      key={idx}
-                      onClick={() => handleSend(item.prompt)}
-                      className="p-4 rounded-xl bg-neutral-900/80 hover:bg-neutral-800/80 border border-neutral-800 hover:border-neutral-700 transition group cursor-pointer text-left"
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="p-2 rounded-lg bg-neutral-800 group-hover:bg-indigo-500/20 text-indigo-400 transition">
-                          <Icon className="w-4 h-4" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-neutral-200 group-hover:text-white transition">
-                            {item.title}
-                          </p>
-                          <p className="text-xs text-neutral-500 mt-0.5">
-                            {item.desc}
-                          </p>
-                        </div>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
             </div>
           ) : (
             <div className="max-w-3xl mx-auto space-y-6">
@@ -223,7 +173,7 @@ const Home = () => {
                     }`}
                   >
                     {!isUser && (
-                      <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center shrink-0 shadow-md shadow-indigo-500/20 mt-1">
+                      <div className="w-8 h-8 rounded-xl  from-indigo-500 to-purple-600 flex items-center justify-center shrink-0 shadow-md shadow-indigo-500/20 mt-1">
                         <Bot className="w-4 h-4 text-white" />
                       </div>
                     )}
@@ -231,12 +181,14 @@ const Home = () => {
                     <div
                       className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                         isUser
-                          ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/10"
+                          ? " from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/10"
                           : "bg-neutral-800/90 border border-neutral-700/60 text-neutral-200"
                       }`}
                     >
-                      <div className="whitespace-pre-wrap font-sans">
-                        {msg.content}
+                      <div className="prose prose-slate dark:prose-invert max-w-none">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {msg.content}
+                        </ReactMarkdown>
                       </div>
 
                       {msg.agentUsed && (
@@ -265,7 +217,7 @@ const Home = () => {
 
               {isLoading && (
                 <div className="flex items-center gap-3.5 text-neutral-400">
-                  <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center shrink-0 shadow-md shadow-indigo-500/20">
+                  <div className="w-8 h-8 rounded-xl  from-indigo-500 to-purple-600 flex items-center justify-center shrink-0 shadow-md shadow-indigo-500/20">
                     <Bot className="w-4 h-4 text-white" />
                   </div>
                   <div className="bg-neutral-800/90 border border-neutral-700/60 rounded-2xl px-4 py-3 text-sm flex items-center gap-2">
@@ -295,7 +247,7 @@ const Home = () => {
             <button
               onClick={() => handleSend()}
               disabled={!inputPrompt.trim() || isLoading}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 p-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 disabled:opacity-40 disabled:hover:from-indigo-500 disabled:hover:to-purple-600 text-white rounded-xl shadow-md transition cursor-pointer"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 p-2  from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 disabled:opacity-40 disabled:hover:from-indigo-500 disabled:hover:to-purple-600 text-white rounded-xl shadow-md transition cursor-pointer"
               title="Send Prompt"
             >
               {isLoading ? (
@@ -306,7 +258,8 @@ const Home = () => {
             </button>
           </div>
           <p className="text-center text-[11px] text-neutral-500 mt-2">
-            FreeAI multi-agent orchestrator may occasionally make mistakes. Verify important information.
+            FreeAI multi-agent orchestrator may occasionally make mistakes.
+            Verify important information.
           </p>
         </div>
       </main>
