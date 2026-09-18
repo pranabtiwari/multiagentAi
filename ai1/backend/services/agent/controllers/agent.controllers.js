@@ -34,6 +34,7 @@ export const agent = async (req, res) => {
         conversationId,
         role: "assistant",
         content: aiResponse,
+        artifacts: result.artifact ? (Array.isArray(result.artifact) ? result.artifact : [result.artifact]) : [],
       });
     }
 
@@ -42,6 +43,8 @@ export const agent = async (req, res) => {
       message: aiResponse,
       agentUsed: result.stateAgentKey,
       searchResults: result.searchResults || [],
+      artifact: result.artifact
+      
     });
   } catch (error) {
     console.error("Agent Controller Error:", error?.response?.data || error.message);

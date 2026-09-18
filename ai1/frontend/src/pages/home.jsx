@@ -39,12 +39,21 @@ const Home = () => {
   const [messages, setMessages] = useState([]);
   const [inputPrompt, setInputPrompt] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedAgent, setSelectedAgent] = useState("auto"); // "auto" | "search"
+  const [selectedAgent, setSelectedAgent] = useState("auto");
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const messagesEndRef = useRef(null);
   const popoverRef = useRef(null);
+  const textareaRef = useRef(null);
 
   const activeChat = conversations.find((c) => c._id === activeConversationId);
+
+  // Auto-resize textarea height as input content grows
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 200)}px`;
+    }
+  }, [inputPrompt]);
 
   // Auto-scroll to bottom of messages
   const scrollToBottom = () => {
@@ -120,6 +129,8 @@ const Home = () => {
       const finalPrompt =
         selectedAgent === "search"
           ? `[Search Mode] ${promptToSend}`
+          : selectedAgent === "coding"
+          ? `[Coding Mode] ${promptToSend}`
           : promptToSend;
 
       // Call AI Agent workflow
@@ -178,7 +189,7 @@ const Home = () => {
                 {activeChat?.title || "Multi-Agent AI Assistant"}
               </h1>
               <p className="text-[11px] text-neutral-400">
-                Mode: {selectedAgent === "search" ? "🔍 Web Search (Gemini)" : "✨ Auto-Route"}
+                Mode: {selectedAgent === "search" ? "🔍 Web Search (Gemini)" : selectedAgent === "coding" ? "💻 Coding Agent" : "✨ Auto-Route"}
               </p>
             </div>
           </div>
@@ -277,12 +288,12 @@ const Home = () => {
           <div className="max-w-3xl mx-auto relative">
             <div className="relative flex items-center">
               {/* + Icon Button with Popover Popup */}
-              <div className="absolute left-3.5 z-20" ref={popoverRef}>
+              <div className="absolute left-3.5 bottom-2.5 z-20" ref={popoverRef}>
                 <button
                   type="button"
                   onClick={() => setIsPopoverOpen((prev) => !prev)}
                   className={`p-1.5 rounded-xl border transition cursor-pointer flex items-center justify-center ${
-                    selectedAgent === "search"
+                    selectedAgent !== "auto"
                       ? "bg-purple-500/20 border-purple-500 text-purple-300"
                       : "bg-neutral-800/80 border-neutral-700 text-neutral-300 hover:text-white hover:bg-neutral-700/80"
                   }`}
@@ -336,23 +347,45 @@ const Home = () => {
                       </div>
                       {selectedAgent === "search" && <Check className="w-3.5 h-3.5 text-purple-400" />}
                     </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedAgent("coding");
+                        setIsPopoverOpen(false);
+                      }}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition cursor-pointer mt-1 ${
+                        selectedAgent === "coding"
+                          ? "bg-purple-600/20 text-purple-300 border border-purple-500/40"
+                          : "text-neutral-300 hover:bg-neutral-800/80"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Code className="w-4 h-4 text-purple-400" />
+                        <span>Coding Agent</span>
+                      </div>
+                      {selectedAgent === "coding" && <Check className="w-3.5 h-3.5 text-purple-400" />}
+                    </button>
                   </div>
                 )}
               </div>
 
               {/* Textarea */}
               <textarea
+                ref={textareaRef}
                 value={inputPrompt}
                 onChange={(e) => setInputPrompt(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder={
                   selectedAgent === "search"
                     ? "Search the web with Gemini..."
+                    : selectedAgent === "coding"
+                    ? "Ask coding questions or write code..."
                     : "Ask anything or enter a prompt..."
                 }
                 rows={1}
                 disabled={isLoading}
-                className="w-full pl-12 pr-14 py-3.5 bg-neutral-900 border border-neutral-700/80 hover:border-neutral-600 focus:border-indigo-500 rounded-2xl text-neutral-100 placeholder-neutral-500 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 resize-none transition shadow-lg shadow-black/40 disabled:opacity-50"
+                className="w-full pl-12 pr-14 py-3.5 bg-neutral-900 border border-neutral-700/80 hover:border-neutral-600 focus:border-indigo-500 rounded-2xl text-neutral-100 placeholder-neutral-500 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 resize-none overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-700 transition-all shadow-lg shadow-black/40 disabled:opacity-50 min-h-[52px] max-h-[200px]"
               />
 
               {/* Send Button */}
@@ -360,7 +393,7 @@ const Home = () => {
                 type="button"
                 onClick={() => handleSend()}
                 disabled={!inputPrompt.trim() || isLoading}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 disabled:opacity-40 disabled:hover:from-indigo-500 disabled:hover:to-purple-600 text-white rounded-xl shadow-md transition cursor-pointer"
+                className="absolute right-2.5 bottom-2.5 p-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 disabled:opacity-40 disabled:hover:from-indigo-500 disabled:hover:to-purple-600 text-white rounded-xl shadow-md transition cursor-pointer"
                 title="Send Prompt"
               >
                 {isLoading ? (

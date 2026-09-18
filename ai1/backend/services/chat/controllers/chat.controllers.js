@@ -117,7 +117,7 @@ export const deleteConversation = async (req, res) => {
 // Save a new message
 export const saveMessage = async (req, res) => {
   try {
-    const { conversationId, role, content } = req.body;
+    const { conversationId, role, content, artifacts } = req.body;
 
     if (!conversationId || !role || !content) {
       return res.status(400).json({
@@ -129,6 +129,7 @@ export const saveMessage = async (req, res) => {
       conversationId,
       role,
       content,
+      artifacts: Array.isArray(artifacts) ? artifacts : artifacts ? [artifacts] : [],
     });
 
     // Touch conversation updatedAt timestamp
