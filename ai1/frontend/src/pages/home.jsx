@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import SideBar from "../components/SideBar.jsx";
+import { CodeBlock, ArtifactViewer } from "../components/CodeBlock.jsx";
 import {
   Send,
   Sparkles,
@@ -25,6 +26,30 @@ import {
   addConversation,
   setActiveConversationId,
 } from "../redux/coverstaionSlice.js";
+
+const tryParseArtifact = (content) => {
+  if (!content || typeof content !== "string") return null;
+  const trimmed = content.trim();
+  if (
+    (trimmed.startsWith("{") && trimmed.endsWith("}")) ||
+    (trimmed.startsWith("[") && trimmed.endsWith("]"))
+  ) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (
+        parsed &&
+        (parsed.files ||
+          parsed.code ||
+          (parsed.title && (parsed.language || parsed.files)))
+      ) {
+        return parsed;
+      }
+    } catch {
+      return null;
+    }
+  }
+  return null;
+};
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -142,6 +167,7 @@ const Home = () => {
         _id: (Date.now() + 1).toString(),
         role: "assistant",
         content: aiContent,
+        artifacts: result?.artifact ? [result.artifact] : [],
         agentUsed: result?.agentUsed || selectedAgent,
         createdAt: new Date().toISOString(),
       };
@@ -236,11 +262,47 @@ const Home = () => {
                           : "bg-neutral-800/90 border border-neutral-700/60 text-neutral-200"
                       }`}
                     >
-                      <div className="prose prose-slate dark:prose-invert max-w-none text-sm leading-relaxed">
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                          {msg.content}
-                        </ReactMarkdown>
-                      </div>
+                      {(() => {
+                        const artifact =
+                          (Array.isArray(msg.artifacts) && msg.artifacts.length > 0 && msg.artifacts[0]) ||
+                          tryParseArtifact(msg.content);
+
+                        if (artifact) {
+                          return <ArtifactViewer artifact={artifact} />;
+                        }
+
+                        return (
+                          <div className="prose prose-slate dark:prose-invert max-w-none text-sm leading-relaxed">
+                            <ReactMarkdown
+                              remarkPlugins={[remarkGfm]}
+                              components={{
+                                code({ node, inline, className, children, ...props }) {
+                                  const match = /language-(\w+)/.exec(className || "");
+                                  const isInline = inline || (!match && !String(children).includes("\n"));
+                                  if (isInline) {
+                                    return (
+                                      <code
+                                        className="bg-neutral-900/80 text-indigo-300 px-1.5 py-0.5 rounded text-xs font-mono border border-neutral-700/50"
+                                        {...props}
+                                      >
+                                        {children}
+                                      </code>
+                                    );
+                                  }
+                                  return (
+                                    <CodeBlock
+                                      language={match ? match[1] : "code"}
+                                      code={String(children).replace(/\n$/, "")}
+                                    />
+                                  );
+                                },
+                              }}
+                            >
+                              {msg.content}
+                            </ReactMarkdown>
+                          </div>
+                        );
+                      })()}
 
                       {msg.agentUsed && (
                         <div className="mt-2 text-[10px] uppercase font-bold tracking-wider text-indigo-400/90 flex items-center gap-1">
